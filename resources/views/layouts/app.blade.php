@@ -5,19 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Meu Projeto Laravel')</title>
 
-    <!-- Bootstrap CSS via CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
-
 </head>
 <body>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Meu Projeto</a>
+            <a class="navbar-brand" href="#">Projeto API Futebol</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -35,15 +33,14 @@
     </nav>
     
     
-    <main class="p-4 container mb-5" style="height: 100%;">
+    <main class="p-4 container mb-5" style="paddin-bottom: 50px;">
         @yield('content')
     </main>
 
     <footer class="bg-dark text-light text-center py-3 mt-4">
-        &copy; {{ date('Y') }} - Meu Projeto Laravel
+        &copy; {{ date('Y') }} - Projeto API Futebol
     </footer>
 
-    <!-- Bootstrap JS via CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     @yield('scripts')
@@ -76,6 +73,7 @@
         justify-content: start;
         border: none;
         background: transparent;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         padding: 10px;
     }
     .btn-team img {
