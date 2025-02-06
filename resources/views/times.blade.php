@@ -3,7 +3,6 @@
 @section('title', 'Times')
 
 @section('content')
-    <!-- Verificando se há algum erro -->
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
@@ -22,7 +21,7 @@
                             <label for="selectOption" class="form-label">Campeonato:</label>
                             <select name="league" id="selectLeague" class="form-control">
                                 <option value="">Selecione...</option>
-                                
+                                {{-- Carregamento por ajax --}}
                             </select>
                         </div>
                         <div class="col-md-2">
@@ -47,7 +46,7 @@
             <div class="card card-custom">
                 <h5 class="text-center mb-3">Times</h5>
                 <div class="row" id="cardTimes">
-    
+                    {{-- Carregamento por ajax --}}
                 </div>
             </div>
         </div>
@@ -59,20 +58,28 @@
         $(document).ready(function() {
             var TeamsPageScript = {
                 init: function() {
-                    // TeamsPageScript.loadLeagues();
-                    TeamsPageScript.loadTeams();
                     this.utils();
+                    TeamsPageScript.loadLeagues();
+                    TeamsPageScript.loadTeams();
+                    
                 },
                 utils: function() {
                     $('#filterInfos').on('click', function() {
                         TeamsPageScript.loadTeams();
-                        // var leagueId = $('#selectLeague').val();
-                        // var seasonDate = $('#filterDate').val();
-                        // var seasonYear = seasonDate ? new Date(seasonDate).getFullYear() : new Date().getFullYear();
+                    });
 
-                        // FootballScripts.loadTeams(leagueId, seasonYear);
-                        // FootballScripts.loadLatestMatches(leagueId, seasonYear, seasonDate);
-                        // FootballScripts.loadNextMatches(leagueId, seasonYear, seasonDate);
+                    $(document).on('click', '.btnTime', function(event) {
+                        event.preventDefault();
+
+                        var teamId = $(this).data('team-id');
+                        var teamName = $(this).data('team-name');
+
+                        if (teamId && teamName) {
+                            var url = '/times/detalhes/' + encodeURIComponent(teamId) + '/' + encodeURIComponent(teamName);
+                            window.location.href = url;
+                        } else {
+                            toastr.error('Erro ao obter detalhes do time.');
+                        }
                     });
                 },
                 loadLeagues: function(){
@@ -104,7 +111,6 @@
                 },
                 loadTeams: function(){
                     var formData = $('#formTeamFilters').serialize();
-                    console.log(formData);
                     $.ajax({
                         url: '{{ route("getTeams") }}',
                         type: 'GET',
@@ -118,17 +124,18 @@
 
                             } else if (response.teams && Object.keys(response.teams.response).length > 0) {
                                 var teams = response.teams.response;
+
                                 $('#cardTimes').empty();
 
                                 $.each(teams, function(index, team) {
-                                    $('#cardTimes').append(`
-                                        <div class="col-md-4">
-                                            <a href="#" data-team-id="${team.team.id}" class="btn btn-team">
-                                                <img src="${team.team.logo}" alt="${team.team.name}" style="width: 30px; height: 30px; margin-right: 10px;">
-                                                ${team.team.name} (${team.team.code || 'N/A'})
-                                            </a>
-                                        </div>
-                                    `);
+                                    $('#cardTimes').append(
+                                        '<div class="col-md-4">' +
+                                            '<a data-team-name="' + team.team.name + '" href="#" data-team-id="' + team.team.id + '" class="btnTime btn btn-team">' +
+                                                '<img src="' + team.team.logo + '" alt="' + team.team.name + '" style="width: 30px; height: 30px; margin-right: 10px;">' +
+                                                team.team.name + ' (' + (team.team.code ? team.team.code : 'N/A') + ')' +
+                                            '</a>' +
+                                        '</div>'
+                                    );
                                 });
                             } else {
                                 toastr.error('Nenhum time foi encontrado nesta liga.');
