@@ -25,6 +25,8 @@
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('football.index') }}">Principal</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ route('football.times') }}">Times</a>
                     </li>
                 </ul>
@@ -32,7 +34,8 @@
         </div>
     </nav>
     
-    <main class="p-4 container" style="height: 100%;">
+    
+    <main class="p-4 container mb-5" style="height: 100%;">
         @yield('content')
     </main>
 
@@ -55,6 +58,8 @@
     footer {
         left: 0;
         bottom: 0;
+        position: fixed;
+        width: 100%;
     }
 
     .card-custom {

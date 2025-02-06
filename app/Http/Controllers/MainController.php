@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\FootballApiService;
+use Carbon\Carbon;
 
 class MainController extends Controller
 {
@@ -30,6 +31,7 @@ class MainController extends Controller
         if (!$leagues) {
             return response()->json(['leagues' => []]);
         }
+        
 
         return response()->json([
             'leagues' => $leagues
@@ -39,13 +41,13 @@ class MainController extends Controller
     public function getTeamsByLeague(Request $request)
     {
         $leagueId = $request->input('leagueId');
-        $season = $request->input('seasonYear');
+        $seasonYear = $request->input('seasonYear');
 
         if (!$leagueId) {
             return response()->json(['teams' => []]);
         }
 
-        $teams = $this->footballService->getTeamsByLeague($leagueId, $season);
+        $teams = $this->footballService->getTeamsByLeague($leagueId, $seasonYear);
 
         return response()->json([
             'teams' => $teams
@@ -55,13 +57,23 @@ class MainController extends Controller
     public function getLatestMatchesByLeague(Request $request)
     {
         $leagueId = $request->input('leagueId');
-        $season = $request->input('seasonYear');
+        $seasonYear = $request->input('seasonYear');
+        $seasonDate = $request->input('seasonDate');
+        $status = 'FT-AET-PEN';
+
+        if (!$seasonDate) {
+            return response()->json(['error' => 'Data não fornecida'], 400);
+        }
+
+        $date = Carbon::createFromFormat('Y-m-d', $seasonDate);
+
+        $seasonDateFrom = $date->subMonth()->format('Y-m-d'); // Data inicial da pesquisa
 
         if (!$leagueId) {
             return response()->json(['matches' => []]);
         }
 
-        $matches = $this->footballService->getLatestMatchesByLeague($leagueId, $season);
+        $matches = $this->footballService->getLatestMatchesByLeague($leagueId, $seasonYear, $status, $seasonDateFrom, $seasonDate);
 
         return response()->json([
             'matches' => $matches
@@ -71,13 +83,28 @@ class MainController extends Controller
     public function getNextMatchesByLeague(Request $request)
     {
         $leagueId = $request->input('leagueId');
-        $season = $request->input('seasonYear');
+        $seasonYear = $request->input('seasonYear');
+        $initialDate = $request->input('seasonDate');
+        $status = 'TBD-NS';
+        $anoAtual = date('Y');
+        
+        if($seasonYear < $anoAtual){
+            $status = 'FT-AET-PEN';
+        }
 
         if (!$leagueId) {
             return response()->json(['matches' => []]);
         }
 
-        $matches = $this->footballService->getNextMatchesByLeague($leagueId, $season);
+        if (!$initialDate) {
+            return response()->json(['error' => 'Data não fornecida'], 400);
+        }
+
+        $date = Carbon::createFromFormat('Y-m-d', $initialDate);
+
+        $seasonDateTo = $date->addMonths()->format('Y-m-d');
+
+        $matches = $this->footballService->getNextMatchesByLeague($leagueId, $seasonYear, $status, $initialDate, $seasonDateTo);
 
         return response()->json([
             'matches' => $matches

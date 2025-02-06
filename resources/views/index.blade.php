@@ -50,10 +50,10 @@
                     <thead>
                         <tr>
                             <th>Data</th>
-                            <th class="text-right">Time da casa</th>
-                            <th class="text-center">Placar</th>
-                            <th class="text-left">Time visitante</th>
-                            <th class="text-left">Local da partida</th>
+                            <th class="text-end">Time da casa</th>
+                            <th></th>
+                            <th class="text-start">Time visitante</th>
+                            <th class="text-start">Local da partida</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,9 +69,10 @@
                     <thead>
                         <tr>
                             <th>Data</th>
-                            <th>Time da casa</th>
-                            <th>Time visitante</th>
-                            <th>Local da partida</th>
+                            <th class="text-end">Time da casa</th>
+                            <th></th>
+                            <th class="text-start">Time visitante</th>
+                            <th class="text-start">Local da partida</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,8 +88,8 @@
         $(document).ready(function() {
             var FootballScripts = {
                 init: function() {
-                    FootballScripts.loadLeagues();
-                    this.utils(); // Corrigido para chamar a função utils corretamente
+                    // FootballScripts.loadLeagues();
+                    this.utils();
                 },
                 utils: function() {
                     $('#filterInfos').on('click', function() {
@@ -109,7 +110,7 @@
                             if (response.leagues && Object.keys(response.leagues.errors).length > 0) {
                                 var errorMessage = response.leagues.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
                                 toastr.error(errorMessage);
-                            } else if (response.leagues && response.leagues.response) {
+                            } else if (response.leagues && Object.keys(response.leagues.response).length > 0) {
                                 var leagues = response.leagues.response;
                                 console.log(leagues);
                                 $.each(leagues, function(index, league) {
@@ -125,47 +126,52 @@
                     });
                 },
                 loadTeams: function(leagueId, seasonYear){
-                    $.ajax({
-                        url: '{{ route("getTeamsByLeague") }}',
-                        type: 'GET',
-                        data: { 
-                            leagueId: leagueId,
-                            seasonYear: seasonYear
-                        },
-                        success: function(response) {
-                            if (response.teams && Object.keys(response.leagues.errors).length > 0) {
-                                var errorMessage = response.teams.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
-                                toastr.error(errorMessage);
+                    if(leagueId && seasonYear)
+                    {
+                        $.ajax({
+                            url: '{{ route("getTeamsByLeague") }}',
+                            type: 'GET',
+                            data: { 
+                                leagueId: leagueId,
+                                seasonYear: seasonYear
+                            },
+                            success: function(response) {
+                                if (response.teams && Object.keys(response.teams.errors).length > 0) {
+                                    var errorMessage = response.teams.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
+                                    toastr.error(errorMessage);
 
-                                $('#cardTimes').html('<div style="text-align: center; padding: 20px; font-weight: bold;">'+errorMessage+'</div>');
+                                    $('#cardTimes').html('<div style="text-align: center; padding: 20px; font-weight: bold;">'+errorMessage+'</div>');
 
-                            } else if (response.teams && response.teams.response) {
-                                var teams = response.teams.response;
-                                $('#cardTimes').empty();
-                                
-                                $.each(teams, function(index, team) {
-                                    $('#cardTimes').append(`
-                                        <div class="col-md-4">
-                                            <a href="#" data-team-id="${team.team.id}" class="btn btn-team">
-                                                <img src="${team.team.logo}" alt="${team.team.name}" style="width: 30px; height: 30px; margin-right: 10px;">
-                                                ${team.team.name} (${team.team.code || 'N/A'})
-                                            </a>
-                                        </div>
-                                    `);
-                                });
-                            } else {
-                                toastr.error('Nenhum time foi encontrado nesta liga.');
+                                } else if (response.teams && Object.keys(response.teams.response).length > 0) {
+                                    var teams = response.teams.response;
+                                    $('#cardTimes').empty();
 
-                                $('#cardTimes').html('<div style="text-align: center; padding: 20px; font-weight: bold;">Nenhum time foi encontrado nesta liga.</div>');
+                                    $.each(teams, function(index, team) {
+                                        $('#cardTimes').append(`
+                                            <div class="col-md-4">
+                                                <a href="#" data-team-id="${team.team.id}" class="btn btn-team">
+                                                    <img src="${team.team.logo}" alt="${team.team.name}" style="width: 30px; height: 30px; margin-right: 10px;">
+                                                    ${team.team.name} (${team.team.code || 'N/A'})
+                                                </a>
+                                            </div>
+                                        `);
+                                    });
+                                } else {
+                                    toastr.error('Nenhum time foi encontrado nesta liga.');
+
+                                    $('#cardTimes').html('<div style="text-align: center; padding: 20px; font-weight: bold;">Nenhum time foi encontrado nesta liga.</div>');
+                                }
+                            },
+                            error: function() {
+                                toastr.error('Erro ao carregar os times. Por favor, recarregue a página e tente novamente.');
                             }
-                        },
-                        error: function() {
-                            toastr.error('Erro ao carregar os times. Por favor, recarregue a página e tente novamente.');
-                        }
-                    });
+                        });
+                    }else{
+                        toastr.error('Por favor, selecione um campeonato.');
+                    }
                 },
                 loadLatestMatches: function(leagueId, seasonYear, seasonDate){
-                    if (leagueId && seasonYear) {
+                    if (leagueId && seasonYear && seasonDate) {
                         $.ajax({
                             url: '{{ route("getLatestMatchesByLeague") }}',
                             type: 'GET',
@@ -175,13 +181,13 @@
                                 seasonDate: seasonDate
                             },
                             success: function(response) {
-                                if (response.matches && Object.keys(response.leagues.errors).length > 0) {
+                                if (response.matches && Object.keys(response.matches.errors).length > 0) {
                                     var errorMessage = response.matches.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
                                     toastr.error(errorMessage);
                                     
                                     $('#latestResults').hide();
                                     $('#latestResultsCard').html('<div style="text-align: center; padding: 20px; font-weight: bold;">' + errorMessage + '</div>');
-                                } else if (response.matches && response.matches.response) {
+                                } else if (response.matches && Object.keys(response.matches.response).length > 0) {
                                     var matches = response.matches.response;
 
                                     $.each(matches, function(index, match) {
@@ -191,11 +197,11 @@
 
                                         $('#latestResults tbody').append(
                                             '<tr>' +
-                                                '<td class="text-left">' + formattedDate + '</td>' +
-                                                '<td class="text-right">' + match.teams.home.name + '<img src="' + match.teams.home.logo + '" alt="' +  match.teams.home.name + '" style="width: 30px; height: 30px; margin-right: 10px;"></td>' +
+                                                '<td class="text-start">' + formattedDate + '</td>' +
+                                                '<td class="text-end">' + match.teams.home.name + '<img src="' + match.teams.home.logo + '" alt="' +  match.teams.home.name + '" style="width: 30px; height: 30px; margin-left: 10px;"></td>' +
                                                 '<td class="text-center">'+ match.goals.home+' VS '+ match.goals.away+'</td>' +
-                                                '<td class="text-left"><img src="' + match.teams.away.logo + '" alt="' +  match.teams.away.name + '" style="width: 30px; height: 30px; margin-right: 10px;">' + match.teams.away.name + '</td>' +
-                                                '<td class="text-left">'+ match.fixture.venue.name+'</td>'+
+                                                '<td class="text-start"><img src="' + match.teams.away.logo + '" alt="' +  match.teams.away.name + '" style="width: 30px; height: 30px; margin-right: 10px;">' + match.teams.away.name + '</td>' +
+                                                '<td class="text-start">'+ match.fixture.venue.name+'</td>'+
                                             '</tr>'
                                         );
                                     });
@@ -213,57 +219,72 @@
                         });
                     } else {
                         $('#latestResults tbody').empty();
+                        toastr.error('Por favor, preencha todos os campos do filtro de pesquisa.');
                     }
                 },
                 loadNextMatches: function(leagueId, seasonYear, seasonDate){
-                    $.ajax({
-                        url: '{{ route("getNextMatchesByLeague") }}',
-                        type: 'GET',
-                        data: { 
-                            leagueId: leagueId,
-                            seasonYear: seasonYear,
-                            seasonDate: seasonDate
-                        },
-                        success: function(response) {
-                            if (response.matches && Object.keys(response.leagues.errors).length > 0) {
-                                var errorMessage = response.matches.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
-                                toastr.error(errorMessage);
-                                
-                                $('#nextMatches').hide();
-                                $('#nextMatchesCard').html('<div style="text-align: center; padding: 20px; font-weight: bold;">' + errorMessage + '</div>');
-                            } else if (response.matches && response.matches.response) {
-                                var matches = response.matches.response;
+                    if (leagueId && seasonYear && seasonDate) {
+                        $.ajax({
+                            url: '{{ route("getNextMatchesByLeague") }}',
+                            type: 'GET',
+                            data: { 
+                                leagueId: leagueId,
+                                seasonYear: seasonYear,
+                                seasonDate: seasonDate
+                            },
+                            success: function(response) {
+                                if (response.matches && Object.keys(response.matches.errors).length > 0) {
+                                    var errorMessage = response.matches.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
+                                    toastr.error(errorMessage);
 
-                                $.each(matches, function(index, match) {
-                                    var fixtureDate = match.fixture.date;
-                                    var dateObj = new Date(fixtureDate);
-                                    var formattedDate = dateObj.toLocaleString('pt-BR', { timeZone: 'UTC' });
+                                    $('#nextMatches').hide();
+                                    $('#nextMatchesCard').html('<div style="text-align: center; padding: 20px; font-weight: bold;">' + errorMessage + '</div>');
+                                } else if (response.matches && Object.keys(response.matches.response).length > 0) {
+                                    var matches = response.matches.response;
+                                    var dataAtual = new Date();
+                                    var mesAtual = dataAtual.getMonth();
+                                    var anoAtual = dataAtual.getFullYear();
 
-                                    $('#nextMatches tbody').append(
-                                        '<tr>' +
-                                            '<td class="text-left">' + formattedDate + '</td>' +
-                                            '<td class="text-right">' + match.teams.home.name + '<img src="' + match.teams.home.logo + '" alt="' +  match.teams.home.name + '" style="width: 30px; height: 30px; margin-right: 10px;"></td>' +
-                                            '<td class="text-left"><img src="' + match.teams.away.logo + '" alt="' +  match.teams.away.name + '" style="width: 30px; height: 30px; margin-right: 10px;">' + match.teams.away.name + '</td>' +
-                                            '<td class="text-left">'+ match.fixture.venue.name+'</td>'+
-                                        '</tr>'
-                                    );
-                                });
+                                    $.each(matches, function(index, match) {
+                                        var fixtureDate = match.fixture.date;
+                                        var dateObj = new Date(fixtureDate);
+                                        var formattedDate = dateObj.toLocaleString('pt-BR', { timeZone: 'UTC' });
 
-                                $('#nextMatches').show();
-                            } else {
-                                toastr.error('Nenhuma partida localizada encontrado para este campeonato.');
-                                $('#nextMatches').hide();
-                                $('#nextMatchesCard').html('<div style="text-align: center; padding: 20px; font-weight: bold;">Nenhuma partida localizada encontrado para este campeonato.</div>');
+                                        var rowAtual = '<tr>' +
+                                            '<td class="text-start">' + formattedDate + '</td>' +
+                                            '<td class="text-end">' + match.teams.home.name + '<img src="' + match.teams.home.logo + '" alt="' + match.teams.home.name + '" style="width: 30px; height: 30px; margin-left: 10px;"></td>';
+
+                                        if (seasonYear < anoAtual || dateObj.getMonth() < mesAtual) { //Significa que os próximos jogos ainda não aconteceram
+                                            rowAtual += '<td class="text-center">' + match.goals.home + ' VS ' + match.goals.away + '</td>';
+                                        } else {
+                                            rowAtual += '<td class="text-center"> VS </td>';
+                                        }
+
+                                        rowAtual += '<td class="text-start"><img src="' + match.teams.away.logo + '" alt="' + match.teams.away.name + '" style="width: 30px; height: 30px; margin-right: 10px;">' + match.teams.away.name + '</td>' +
+                                            '<td class="text-start">' + match.fixture.venue.name + '</td>' +
+                                            '</tr>';
+
+                                        $('#nextMatches tbody').append(rowAtual);
+                                    });
+
+                                    $('#nextMatches').show();
+                                } else {
+                                    toastr.error('Nenhuma partida localizada encontrado para este campeonato.');
+                                    $('#nextMatches').hide();
+                                    $('#nextMatchesCard').html('<div style="text-align: center; padding: 20px; font-weight: bold;">Nenhuma partida localizada encontrado para este campeonato.</div>');
+                                }
+                            },
+                            error: function() {
+                                toastr.error('Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.');
                             }
-                        },
-                        error: function() {
-                            toastr.error('Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.');
-                        }
-                    });
+                        });
+                    }else{
+                        toastr.error('Por favor, preencha todos os campos do filtro de pesquisa.');
+                    }
                 }
             };
 
-            FootballScripts.init(); // Agora a função é chamada corretamente
+            // FootballScripts.init();
         });
     </script>
 @endsection

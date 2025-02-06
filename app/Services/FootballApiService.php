@@ -19,28 +19,36 @@ class FootballApiService{
         return $this->makeRequest('leagues', ['country' => 'Brazil']);
     }
 
-    public function getTeamsByLeague($leagueId, $season)
+    public function getTeamsByLeague($leagueId, $seasonYear)
     {
-        return $this->makeRequest('teams', ['league' => $leagueId, 'season' => $season]);
+        return $this->makeRequest('teams', ['league' => $leagueId, 'season' => $seasonYear]);
     }
+
+    public function getTeams($params){
+        return $this->makeRequest('teams', $params);
+    }
+
     
-    public function getLatestMatchesByLeague($leagueId, $season){
+    
+    public function getLatestMatchesByLeague($leagueId, $seasonYear, $status, $seasonDateFrom, $seasonDate){
         $params = [
             'league' => $leagueId, 
-            'season' => $season,
-            'status' => 'FT',
-            'from' => $season.'-12-01',
-            'to' => $season.'-12-31',
+            'season' => $seasonYear,
+            'status' => $status, // Partidas finalizadas
+            'from' => $seasonDateFrom,
+            'to' => $seasonDate,
         ];
     
         return $this->makeRequest('fixtures', $params);
     }
 
-    public function getNextMatchesByLeague($leagueId, $season){
+    public function getNextMatchesByLeague($leagueId, $season, $status, $initialDate, $seasonDateTo){
         $params = [
             'league' => $leagueId,
             'season' => $season,
-            'status' => 'NS',
+            'status' => $status, // Partidas agendadas, não iniciadas
+            'from' => $initialDate,
+            'to' => $seasonDateTo,
         ];
     
         return $this->makeRequest('fixtures', $params);
