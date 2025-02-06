@@ -28,8 +28,6 @@ class FootballApiService{
         return $this->makeRequest('teams', $params);
     }
 
-    
-    
     public function getLatestMatchesByLeague($leagueId, $seasonYear, $status, $seasonDateFrom, $seasonDate){
         $params = [
             'league' => $leagueId, 

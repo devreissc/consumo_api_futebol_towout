@@ -110,4 +110,18 @@ class MainController extends Controller
             'matches' => $matches
         ]);
     }
+
+    public function getTeams(Request $request){
+        $requestData = $request->all();
+
+        $params = array_merge([
+            'country' => 'Brazil' // Valor padrão
+        ], $requestData);
+
+        $teams = $this->footballService->getTeams($params);
+
+        return response()->json([
+            'teams' => $teams
+        ]);
+    }
 }
