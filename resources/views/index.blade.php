@@ -133,7 +133,7 @@
                             seasonYear: seasonYear
                         },
                         success: function(response) {
-                            if (response.teams && response.teams.errors) {
+                            if (response.teams && Object.keys(response.leagues.errors).length > 0) {
                                 var errorMessage = response.teams.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
                                 toastr.error(errorMessage);
 
@@ -175,7 +175,7 @@
                                 seasonDate: seasonDate
                             },
                             success: function(response) {
-                                if (response.matches && response.matches.errors) {
+                                if (response.matches && Object.keys(response.leagues.errors).length > 0) {
                                     var errorMessage = response.matches.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
                                     toastr.error(errorMessage);
                                     
@@ -225,7 +225,7 @@
                             seasonDate: seasonDate
                         },
                         success: function(response) {
-                            if (response.matches && response.matches.errors) {
+                            if (response.matches && Object.keys(response.leagues.errors).length > 0) {
                                 var errorMessage = response.matches.errors.plan || "Ocorreu um erro desconhecido, por favor, recarregue a página e tente novamente.";
                                 toastr.error(errorMessage);
                                 
