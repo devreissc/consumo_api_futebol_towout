@@ -28,26 +28,34 @@ class FootballApiService{
         return $this->makeRequest('teams', $params);
     }
 
-    public function getLatestMatchesByLeague($leagueId, $seasonYear, $status, $seasonDateFrom, $seasonDate){
+    public function getLatestMatchesByLeague($leagueId, $seasonYear, $status, $seasonDateFrom, $seasonDate, $teamId = null){
         $params = [
             'league' => $leagueId, 
             'season' => $seasonYear,
-            'status' => $status, // Partidas finalizadas
+            'status' => $status,
             'from' => $seasonDateFrom,
             'to' => $seasonDate,
         ];
+
+        if(!is_null($teamId)){
+            $params = array_merge($params, ['team' => $teamId]);
+        }
     
         return $this->makeRequest('fixtures', $params);
     }
 
-    public function getNextMatchesByLeague($leagueId, $season, $status, $initialDate, $seasonDateTo){
+    public function getNextMatchesByLeague($leagueId, $season, $status, $initialDate, $seasonDateTo, $teamId = null){
         $params = [
             'league' => $leagueId,
             'season' => $season,
-            'status' => $status, // Partidas agendadas, não iniciadas
+            'status' => $status,
             'from' => $initialDate,
             'to' => $seasonDateTo,
         ];
+
+        if(!is_null($teamId)){
+            $params = array_merge($params, ['team' => $teamId]);
+        }
     
         return $this->makeRequest('fixtures', $params);
     }
