@@ -60,7 +60,8 @@ class MainController extends Controller
         $seasonYear = $request->input('seasonYear');
         $seasonDate = $request->input('seasonDate');
         $status = 'FT-AET-PEN';
-
+        $teamId = $request->input('teamId');
+        
         if (!$seasonDate) {
             return response()->json(['error' => 'Data não fornecida'], 400);
         }
@@ -73,7 +74,7 @@ class MainController extends Controller
             return response()->json(['matches' => []]);
         }
 
-        $matches = $this->footballService->getLatestMatchesByLeague($leagueId, $seasonYear, $status, $seasonDateFrom, $seasonDate);
+        $matches = $this->footballService->getLatestMatchesByLeague($leagueId, $seasonYear, $status, $seasonDateFrom, $seasonDate, $teamId);
 
         return response()->json([
             'matches' => $matches
@@ -85,6 +86,8 @@ class MainController extends Controller
         $leagueId = $request->input('leagueId');
         $seasonYear = $request->input('seasonYear');
         $initialDate = $request->input('seasonDate');
+        $teamId = $request->input('teamId');
+
         $status = 'TBD-NS';
         $anoAtual = date('Y');
         
@@ -104,7 +107,7 @@ class MainController extends Controller
 
         $seasonDateTo = $date->addMonths()->format('Y-m-d');
 
-        $matches = $this->footballService->getNextMatchesByLeague($leagueId, $seasonYear, $status, $initialDate, $seasonDateTo);
+        $matches = $this->footballService->getNextMatchesByLeague($leagueId, $seasonYear, $status, $initialDate, $seasonDateTo, $teamId);
 
         return response()->json([
             'matches' => $matches
@@ -115,7 +118,7 @@ class MainController extends Controller
         $requestData = $request->all();
 
         $params = array_merge([
-            'country' => 'Brazil' // Valor padrão
+            'country' => 'Brazil' 
         ], $requestData);
 
         $teams = $this->footballService->getTeams($params);
@@ -123,5 +126,23 @@ class MainController extends Controller
         return response()->json([
             'teams' => $teams
         ]);
+    }
+
+    public function detalhes($id, $name){
+
+        if ($id > 0 && !empty($name)) {
+            $params = [
+                'country' => 'Brazil',
+                'id' => $id
+            ];
+    
+            $team = $this->footballService->getTeams($params);
+    
+            return view('detalhes', [
+                'team' => $team
+            ]);
+        } else {
+            return redirect()->route('football.times')->with('error', 'ID inválido ou nome vazio.');
+        }
     }
 }
